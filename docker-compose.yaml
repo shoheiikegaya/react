@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+  frontapp:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    volumes:
+      - ./front/client1:/client1
+    working_dir: /client1
+    command: npm start
+    tty: true
+    ports:
+      - 3000:3000
+  backendapp:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    links:
+      - "database"
+    volumes:
+      - ./backend/server1:/server1
+    working_dir: /server1
+    command:  "node index.js"
+    tty: true
+    ports:
+      - 3001:3001
+    environment:
+      DATABASE_URL: postgres://user:pass@database:5432/mydb1
+      #NODE_ENV: development
+      DB_USER: user
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: mydb1
+      DB_PASSWORD: pass
+    #networks:
+    #  - app-net
+  database:
+    image: postgres:12.6-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ./init-sql:/docker-entrypoint-initdb.d:ro
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: user
+      POSTGRES_DB: mydb1
+      TZ: "Asia/Tokyo"
+      POSTGRES_HOST_AUTH_METHOD: trust
+    #networks:
+    #  - app-net
+#networks:
+#  app-net:
+#    driver: bridge
