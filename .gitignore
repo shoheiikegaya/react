@@ -1,3 +1,2 @@
 # ディレクトリを指定する場合
-server1/node_modules/
-client1/node_modules/
+node_modules/
